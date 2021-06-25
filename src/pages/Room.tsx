@@ -1,66 +1,26 @@
 import { RoomCode } from '../components/RoomCode';
 import { useParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth';
-import { FormEvent, useState, useEffect } from 'react';
+import { FormEvent, useState } from 'react';
 
 import '../styles/room.scss'
 import logoImg from '../assets/images/logo.svg'
 import { Button } from '../components/Button'
 import { database } from '../services/firebase';
+import { Question } from '../components/Question';
+import { useRoom } from '../hooks/useRoom';
 
 type RoomParams = {
     id: string;
 }
 
-type Question = {
-    id: string,
-    author: {
-        name: string;
-        avatar: string;
-    }
-    content: string;
-    isAnswered: boolean;
-    isHighlighted: boolean;
-}
-
-type FirebaseQuestions = Record<string, {
-    author: {
-        name: string;
-        avatar: string;
-    }
-    content: string;
-    isAnswered: boolean;
-    isHighlighted: boolean;
-}>
-
 export function Room() {
-    const { user } = useAuth();
-    const params = useParams<RoomParams>();
+    const { user, signInWithGoogle } = useAuth();
     const [newQuestion, setNewQuestion] = useState('');
+    const params = useParams<RoomParams>();
     const RoomId = params.id;
-    const [questions, setQuestions] = useState<Question[]>([])
-    const [title, setTitle] = useState('');
+    const { title, questions } = useRoom(RoomId);
 
-    useEffect(() => {
-        const roomsRef = database.ref(`rooms/${RoomId}`);
-
-        roomsRef.on('value', room => {
-            const databaseRoom = room.val();
-            const firebaseQuestions: FirebaseQuestions = databaseRoom.questions ?? {};
-            const parsedQuestions = Object.entries(firebaseQuestions).map(([key, value]) => {
-                return {
-                    id: key,
-                    content: value.content,
-                    author: value.author,
-                    isHighlighted: value.isHighlighted,
-                    isAnswered: value.isAnswered,
-                }
-            })
-
-            setTitle(databaseRoom.title)
-            setQuestions(parsedQuestions)
-        })
-    }, [RoomId])
 
     async function handleSendQuestion(event: FormEvent) {
         event.preventDefault();
@@ -114,12 +74,24 @@ export function Room() {
                                 <span>{user.name}</span>
                             </div>
                         ) : (
-                            <span><button>Login</button> to ask a question</span>
+                            <span><button onClick={signInWithGoogle} >Login</button> to ask a question</span>
                         ) }
 
                         <Button type="submit" disabled={!user}>Send</Button>
                     </div>
                 </form>
+
+                <div className="questions-list">
+                    { questions.map(question => {
+                        return(
+                            <Question 
+                            key={question.id}
+                            content={question.content}
+                            author={question.author}
+                            />
+                        );
+                    }) }
+                </div>
             </main>
         </div>
     );
