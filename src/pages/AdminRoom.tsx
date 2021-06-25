@@ -1,12 +1,12 @@
 import { RoomCode } from '../components/RoomCode';
 import { useParams } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth';
-import { FormEvent, useState } from 'react';
+// import { useAuth } from '../hooks/useAuth';
+// import { FormEvent, useState } from 'react';
 
 import '../styles/room.scss'
 import logoImg from '../assets/images/logo.svg'
 import { Button } from '../components/Button'
-import { database } from '../services/firebase';
+// import { database } from '../services/firebase';
 import { Question } from '../components/Question';
 import { useRoom } from '../hooks/useRoom';
 
@@ -15,35 +15,11 @@ type RoomParams = {
 }
 
 export function AdminRoom() {
-    const { user, signInWithGoogle } = useAuth();
-    const [newQuestion, setNewQuestion] = useState('');
+    // const { user, signInWithGoogle } = useAuth();
+    // const [newQuestion, setNewQuestion] = useState('');
     const params = useParams<RoomParams>();
     const RoomId = params.id;
     const { title, questions } = useRoom(RoomId);
-
-
-    async function handleSendQuestion(event: FormEvent) {
-        event.preventDefault();
-        if (newQuestion.trim() === '') {
-            return;
-        }
-        if (!user) {
-            throw new Error('You must be logged in')
-        }
-
-        const question = {
-            content: newQuestion,
-            author: {
-                name: user.name,
-                avatar: user.avatar,
-            },
-            isHighlighted: false,
-            isAnswered: false,
-        };
-        await database.ref(`rooms/${RoomId}/questions`).push(question);
-
-        setNewQuestion('');
-    }
 
     return (
         <div id="page-room">
