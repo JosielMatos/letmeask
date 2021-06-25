@@ -12,7 +12,7 @@ import { Button } from '../components/Button';
 export function Home() {
     const history = useHistory();
     const { user, signInWithGoogle } = useAuth();
-    const [roomCode, setRoomCode] = useState('')
+    const [roomCode, setRoomCode] = useState('');
 
 
     async function handleCreateRoom() {
@@ -33,6 +33,11 @@ export function Home() {
         const roomRef = await database.ref(`rooms/${roomCode}`).get()
         if (!roomRef.exists()) {
             alert('Room does not exist');
+            return;
+        }
+
+        if (roomRef.val().closedAt) {
+            alert('Room already closed.');
             return;
         }
 

@@ -1,14 +1,15 @@
 import { RoomCode } from '../components/RoomCode';
-import { useParams } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
+import { database } from '../services/firebase';
 // import { useAuth } from '../hooks/useAuth';
 // import { FormEvent, useState } from 'react';
+import { useRoom } from '../hooks/useRoom';
 
 import '../styles/room.scss'
 import logoImg from '../assets/images/logo.svg'
-import { Button } from '../components/Button'
-// import { database } from '../services/firebase';
+import deleteImg from '../assets/images/delete.svg'
 import { Question } from '../components/Question';
-import { useRoom } from '../hooks/useRoom';
+import { Button } from '../components/Button'
 
 type RoomParams = {
     id: string;
@@ -17,9 +18,23 @@ type RoomParams = {
 export function AdminRoom() {
     // const { user, signInWithGoogle } = useAuth();
     // const [newQuestion, setNewQuestion] = useState('');
+    const history = useHistory()
     const params = useParams<RoomParams>();
-    const RoomId = params.id;
-    const { title, questions } = useRoom(RoomId);
+    const roomId = params.id;
+    const { title, questions } = useRoom(roomId);
+
+    async function handleDeleteQuestion(questionId: string) {
+        if (window.confirm('Are you sure you want to delete this question?')) {
+            await database.ref(`rooms/${roomId}/questions/${questionId}`).remove()
+        }
+    }
+
+    async function handleCloseRoom() {
+        await database.ref(`rooms/${roomId}`).update({
+            closedAt: new Date(),
+        })
+        history.push('/')
+    }
 
     return (
         <div id="page-room">
@@ -27,8 +42,8 @@ export function AdminRoom() {
                 <div className="content">
                     <img src={logoImg} alt="logo" />
                     <div>
-                        <RoomCode code={RoomId} />
-                        <Button isOutlined>Close Room</Button>
+                        <RoomCode code={roomId} />
+                        <Button isOutlined onClick={handleCloseRoom}>Close Room</Button>
                     </div>
                 </div>
             </header>
@@ -46,7 +61,14 @@ export function AdminRoom() {
                             key={question.id}
                             content={question.content}
                             author={question.author}
-                            />
+                            >
+                                <button
+                                    type="button"
+                                    onClick={() => handleDeleteQuestion(question.id)}
+                                >
+                                    <img src={deleteImg} alt="delete question" />
+                                </button>
+                            </Question>
                         );
                     }) }
                 </div>
