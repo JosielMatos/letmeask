@@ -21,7 +21,7 @@ $ git clone https://github.com/JosielMatos/letmeask
 $ cd letmeask
 ```
 
-Follow the steps:
+Type on your terminal:
 ```bash
 # Install dependencies
 $ yarn
