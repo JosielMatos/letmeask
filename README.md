@@ -12,7 +12,7 @@ Project developed with the following Tech Stack:
 - [Firebase](https://firebase.google.com/)
 - [TypeScript](https://www.typescriptlang.org/)
 
-## 🚀 How to run
+## 🚀 How to run locally
 
 Clone the project and go to the folder.
 
